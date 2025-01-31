@@ -42,7 +42,6 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "splash_screen") {
                     composable("splash_screen") { SplashScreen(navController) }
                     composable("alert_screen") { MqttAlertScreen() }
-
                 }
             }
         }
@@ -65,16 +64,13 @@ fun MqttAlertScreen() {
             showAlertDialog = true
         }
     }
-
     // Lancement de la connexion MQTT une seule fois
     LaunchedEffect(Unit) {
         mqttHelper.connect()
     }
-
     val backgroundColor = Color(0xFFF3F4F6) // Fond gris clair
     val primaryColor = Color(0xFFCE1DCC) // Couleur du SplashScreen
     val alertColor = Color(0xFFD8BFD8)
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -114,9 +110,7 @@ fun MqttAlertScreen() {
                     .clip(CircleShape)
             )
         }
-
         Spacer(modifier = Modifier.height(10.dp))
-
         // 📌 Barre de recherche
         TextField(
             value = searchText,
@@ -133,7 +127,6 @@ fun MqttAlertScreen() {
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(8.dp)
         )
-
         Spacer(modifier = Modifier.height(20.dp))
 
         // 📌 Carte Alerte CLIQUABLE
@@ -211,19 +204,23 @@ fun MqttAlertScreen() {
                     ) {
                         Text("📞 Appeler 118", color = Color.White)
                     }
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = { showAlertDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
-                ) {
-                    Text("Annuler", color = Color.White)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 📌 Bouton Annuler (avec une croix ❌)
+                    Button(
+                        onClick = { showAlertDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("❌ Annuler", color = Color.White)
+                    }
                 }
             }
         )
     }
 }
+
 // 📌 Composable pour les alertes sous forme de carte
 @Composable
 fun AlertCard(alertText: String) {
