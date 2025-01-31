@@ -65,6 +65,7 @@ fun MqttAlertScreen() {
             showAlertDialog = true
         }
     }
+
     // Lancement de la connexion MQTT une seule fois
     LaunchedEffect(Unit) {
         mqttHelper.connect()
@@ -184,14 +185,32 @@ fun MqttAlertScreen() {
             title = { Text("Alerte Urgente !") },
             text = { Text("Voulez-vous appeler le numéro d'urgence 118 ?") },
             confirmButton = {
-                Button(
-                    onClick = {
-                        mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
-                        showAlertDialog = false // Fermer le pop-up après envoi du message
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
-                ) {
-                    Text("Vérifier", color = Color.White)
+                Column {
+                    // 📌 Bouton Vérifier (Envoie "Tout va bien")
+                    Button(
+                        onClick = {
+                            mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
+                            showAlertDialog = false // Fermer le pop-up après envoi du message
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("✅ Vérifier", color = Color.White)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 📌 Bouton Appeler 118
+                    Button(
+                        onClick = {
+                            // TODO: Ajouter l'action d'appel
+                            showAlertDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("📞 Appeler 118", color = Color.White)
+                    }
                 }
             },
             dismissButton = {
@@ -205,7 +224,6 @@ fun MqttAlertScreen() {
         )
     }
 }
-
 // 📌 Composable pour les alertes sous forme de carte
 @Composable
 fun AlertCard(alertText: String) {
