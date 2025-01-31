@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
 fun MqttAlertScreen() {
     var alertMessage by remember { mutableStateOf("En attente d'alertes...") }
     var showAlertDialog by remember { mutableStateOf(false) }
+    var showConfirmationDialog by remember { mutableStateOf(false) } // ✅ Nouveau pop-up pour "Papi va bien"
     var searchText by remember { mutableStateOf("") } // État pour la barre de recherche
 
     // Instance MQTT pour la réception d'alertes
@@ -64,13 +65,16 @@ fun MqttAlertScreen() {
             showAlertDialog = true
         }
     }
+
     // Lancement de la connexion MQTT une seule fois
     LaunchedEffect(Unit) {
         mqttHelper.connect()
     }
+
     val backgroundColor = Color(0xFFF3F4F6) // Fond gris clair
     val primaryColor = Color(0xFFCE1DCC) // Couleur du SplashScreen
     val alertColor = Color(0xFFD8BFD8)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -110,7 +114,9 @@ fun MqttAlertScreen() {
                     .clip(CircleShape)
             )
         }
+
         Spacer(modifier = Modifier.height(10.dp))
+
         // 📌 Barre de recherche
         TextField(
             value = searchText,
@@ -127,6 +133,7 @@ fun MqttAlertScreen() {
                 .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(8.dp)
         )
+
         Spacer(modifier = Modifier.height(20.dp))
 
         // 📌 Carte Alerte CLIQUABLE
@@ -183,7 +190,8 @@ fun MqttAlertScreen() {
                     Button(
                         onClick = {
                             mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
-                            showAlertDialog = false // Fermer le pop-up après envoi du message
+                            showAlertDialog = false // Fermer ce pop-up
+                            showConfirmationDialog = true // ✅ Ouvrir le pop-up "Papi va bien"
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                         modifier = Modifier.fillMaxWidth()
@@ -215,6 +223,24 @@ fun MqttAlertScreen() {
                     ) {
                         Text("❌ Annuler", color = Color.White)
                     }
+                }
+            }
+        )
+    }
+
+    // 📌 NOUVEAU POP-UP "Papi va bien"
+    if (showConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmationDialog = false },
+            title = { Text("Confirmation") },
+            text = { Text("✅ Papi va bien !") },
+            confirmButton = {
+                Button(
+                    onClick = { showConfirmationDialog = false }, // Ferme le pop-up
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("OK", color = Color.White)
                 }
             }
         )
