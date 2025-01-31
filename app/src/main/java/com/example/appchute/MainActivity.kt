@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.example.appchute
 
@@ -29,7 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.appchute.mqtt.MqttHelper
-import com.example.appchute.screens.AlertListScreen
+
 import com.example.appchute.ui.theme.AppchuteTheme
 import com.example.chute.SplashScreen
 
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+//Fonction Composable
 @Composable
 fun MqttAlertScreen() {
     var alertMessage by remember { mutableStateOf("En attente d'alertes...") }
@@ -65,7 +65,6 @@ fun MqttAlertScreen() {
             showAlertDialog = true
         }
     }
-
     // Lancement de la connexion MQTT une seule fois
     LaunchedEffect(Unit) {
         mqttHelper.connect()
@@ -74,7 +73,6 @@ fun MqttAlertScreen() {
     val backgroundColor = Color(0xFFF3F4F6) // Fond gris clair
     val primaryColor = Color(0xFFCE1DCC) // Couleur du SplashScreen
     val alertColor = Color(0xFFD8BFD8)
-    val buttonColor = Color(0xFFCE1DCC)
 
     Column(
         modifier = Modifier
@@ -177,25 +175,6 @@ fun MqttAlertScreen() {
                 AlertCard(alert)
             }
         }
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        // 📌 Bouton stylisé "Tout va bien"
-        Button(
-            onClick = {
-                mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp)
-        ) {
-            Text(
-                "✅ Confirmer 'Tout va bien'",
-                fontSize = 18.sp,
-                color = Color.White
-            )
-        }
     }
 
     // 📌 POP-UP LORSQU'ON CLIQUE SUR L'ALERTE
@@ -206,10 +185,13 @@ fun MqttAlertScreen() {
             text = { Text("Voulez-vous appeler le numéro d'urgence 118 ?") },
             confirmButton = {
                 Button(
-                    onClick = { /* Logique d'appel 118 */ showAlertDialog = false },
+                    onClick = {
+                        mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
+                        showAlertDialog = false // Fermer le pop-up après envoi du message
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
-                    Text("📞 Appeler 118", color = Color.White)
+                    Text("Vérifier", color = Color.White)
                 }
             },
             dismissButton = {
