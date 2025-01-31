@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.appchute
 
 import android.os.Bundle
@@ -50,7 +52,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MqttAlertScreen() {
     var alertMessage by remember { mutableStateOf("En attente d'alertes...") }
-    var showAlertDialog by remember { mutableStateOf(false) } // Variable pour afficher le pop-up
+    var showAlertDialog by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") } // État pour la barre de recherche
 
     // Instance MQTT pour la réception d'alertes
     val mqttHelper = remember {
@@ -59,7 +62,7 @@ fun MqttAlertScreen() {
             topic = "zigbee/alertes"
         ) { message ->
             alertMessage = message
-            showAlertDialog = true // Ouvrir le pop-up quand une alerte arrive
+            showAlertDialog = true
         }
     }
 
@@ -71,8 +74,8 @@ fun MqttAlertScreen() {
     val backgroundColor = Color(0xFFF3F4F6) // Fond gris clair
     val primaryColor = Color(0xFFCE1DCC) // Couleur du SplashScreen
     val alertColor = Color(0xFFD8BFD8)
-    val buttonColor = Color(0xFFCE1DCC) // Couleur du bouton
-    val splashColor = Color(0xFFCE1DCC)
+    val buttonColor = Color(0xFFCE1DCC)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,7 +94,7 @@ fun MqttAlertScreen() {
             IconButton(onClick = { /* Action Menu */ }) {
                 Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color.Black)
             }
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Bienvenue Papi 👋",
                     fontSize = 28.sp,
@@ -112,35 +115,25 @@ fun MqttAlertScreen() {
                     .clip(CircleShape)
             )
         }
-        // 📌 Section Calendrier
-        Box(
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // 📌 Barre de recherche
+        TextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            placeholder = { Text("Rechercher une alerte...") },
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.White, // Utilisation correcte du containerColor
+                focusedIndicatorColor = primaryColor,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(primaryColor, RoundedCornerShape(16.dp)) // 📌 Fond de la couleur du SplashScreen
-                .padding(16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                listOf("31", "01", "02", "03", "04", "05").forEach { day ->
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .background(if (day == "30") Color.Black else Color.White),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = day,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (day == "30") Color.White else Color.Black
-                        )
-                    }
-                }
-            }
-        }
+                .background(Color.White, RoundedCornerShape(16.dp))
+                .padding(8.dp)
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -151,7 +144,7 @@ fun MqttAlertScreen() {
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showAlertDialog = true } // 📌 Rend la carte cliquable
+                .clickable { showAlertDialog = true }
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -166,7 +159,7 @@ fun MqttAlertScreen() {
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.height(10.dp)) // Ajoute un espace de 10.dp entre les deux textes
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = alertMessage,
@@ -179,9 +172,7 @@ fun MqttAlertScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         // 📌 Liste des Alertes
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             listOf("Alerte Chute - 14h30", "Alerte Mouvement - 12h45").forEach { alert ->
                 AlertCard(alert)
             }
@@ -216,7 +207,7 @@ fun MqttAlertScreen() {
             confirmButton = {
                 Button(
                     onClick = { /* Logique d'appel 118 */ showAlertDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = splashColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
                     Text("📞 Appeler 118", color = Color.White)
                 }
@@ -224,7 +215,7 @@ fun MqttAlertScreen() {
             dismissButton = {
                 Button(
                     onClick = { showAlertDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = splashColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
                     Text("Annuler", color = Color.White)
                 }
