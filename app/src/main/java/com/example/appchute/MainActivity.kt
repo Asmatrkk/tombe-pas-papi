@@ -2,6 +2,8 @@
 
 package com.example.appchute
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,8 +55,10 @@ class MainActivity : ComponentActivity() {
 fun MqttAlertScreen() {
     var alertMessage by remember { mutableStateOf("En attente d'alertes...") }
     var showAlertDialog by remember { mutableStateOf(false) }
-    var showConfirmationDialog by remember { mutableStateOf(false) } // ✅ Nouveau pop-up pour "Papi va bien"
-    var searchText by remember { mutableStateOf("") } // État pour la barre de recherche
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     // Instance MQTT pour la réception d'alertes
     val mqttHelper = remember {
@@ -107,7 +112,7 @@ fun MqttAlertScreen() {
                 )
             }
             Image(
-                painter = painterResource(id = R.drawable.p4), // Remplace avec une vraie image
+                painter = painterResource(id = R.drawable.p4),
                 contentDescription = "Profil",
                 modifier = Modifier
                     .size(120.dp)
@@ -124,7 +129,7 @@ fun MqttAlertScreen() {
             placeholder = { Text("Rechercher une alerte...") },
             singleLine = true,
             colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White, // Utilisation correcte du containerColor
+                containerColor = Color.White,
                 focusedIndicatorColor = primaryColor,
                 unfocusedIndicatorColor = Color.Transparent
             ),
@@ -170,9 +175,9 @@ fun MqttAlertScreen() {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 📌 Liste des Alertes
+        // 📌 Liste des alertes sous forme de cartes
         Column(modifier = Modifier.fillMaxWidth()) {
-            listOf("Alerte Chute - 14h30", "Alerte Mouvement - 12h45").forEach { alert ->
+            listOf("🚨 Chute détectée - 14h30", "🚨 Mouvement anormal - 12h45").forEach { alert ->
                 AlertCard(alert)
             }
         }
@@ -186,26 +191,25 @@ fun MqttAlertScreen() {
             text = { Text("Voulez-vous appeler le numéro d'urgence 118 ?") },
             confirmButton = {
                 Column {
-                    // 📌 Bouton Vérifier (Envoie "Tout va bien")
                     Button(
                         onClick = {
-                            mqttHelper.publishMessage("zigbee/alertes", "Tout va bien")
-                            showAlertDialog = false // Fermer ce pop-up
-                            showConfirmationDialog = true // ✅ Ouvrir le pop-up "Papi va bien"
+                            mqttHelper.publishMessage("zigbee/alertes", "Est-ce que ça va papi?")
+                            showAlertDialog = false
+                            showConfirmationDialog = true
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("✅ Vérifier", color = Color.White)
                     }
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // 📌 Bouton Appeler 118
                     Button(
                         onClick = {
-                            // TODO: Ajouter l'action d'appel
-                            showAlertDialog = false
+                            val callIntent = Intent(Intent.ACTION_DIAL).apply {
+                                data = Uri.parse("tel:118")
+                            }
+                            context.startActivity(callIntent)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                         modifier = Modifier.fillMaxWidth()
@@ -215,7 +219,6 @@ fun MqttAlertScreen() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // 📌 Bouton Annuler (avec une croix ❌)
                     Button(
                         onClick = { showAlertDialog = false },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
@@ -223,24 +226,6 @@ fun MqttAlertScreen() {
                     ) {
                         Text("❌ Annuler", color = Color.White)
                     }
-                }
-            }
-        )
-    }
-
-    // 📌 NOUVEAU POP-UP "Papi va bien"
-    if (showConfirmationDialog) {
-        AlertDialog(
-            onDismissRequest = { showConfirmationDialog = false },
-            title = { Text("Confirmation") },
-            text = { Text("✅ Papi va bien !") },
-            confirmButton = {
-                Button(
-                    onClick = { showConfirmationDialog = false }, // Ferme le pop-up
-                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("OK", color = Color.White)
                 }
             }
         )
@@ -270,11 +255,7 @@ fun AlertCard(alertText: String) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
-            Icon(
-                Icons.Filled.ArrowForward,
-                contentDescription = "Voir plus",
-                tint = Color.Black
-            )
+            Icon(Icons.Filled.ArrowForward, contentDescription = "Voir plus", tint = Color.Black)
         }
     }
 }
