@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "splash_screen") {
                     composable("splash_screen") { SplashScreen(navController) }
                     composable("alert_screen") { MqttAlertScreen() }
-                
+
                 }
             }
         }
@@ -70,9 +70,9 @@ fun MqttAlertScreen() {
 
     val backgroundColor = Color(0xFFF3F4F6) // Fond gris clair
     val primaryColor = Color(0xFFCE1DCC) // Couleur du SplashScreen
-    val alertColor = Color(0xFFFFE082) // Jaune pour la carte d'alerte
+    val alertColor = Color(0xFFD8BFD8)
     val buttonColor = Color(0xFFCE1DCC) // Couleur du bouton
-
+    val splashColor = Color(0xFFCE1DCC)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -105,16 +105,13 @@ fun MqttAlertScreen() {
                 )
             }
             Image(
-                painter = painterResource(id = R.drawable.p3), // Remplace avec une vraie image
+                painter = painterResource(id = R.drawable.p4), // Remplace avec une vraie image
                 contentDescription = "Profil",
                 modifier = Modifier
                     .size(190.dp)
                     .clip(CircleShape)
             )
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
         // 📌 Section Calendrier
         Box(
             modifier = Modifier
@@ -169,6 +166,8 @@ fun MqttAlertScreen() {
                     color = Color.Black
                 )
 
+                Spacer(modifier = Modifier.height(10.dp)) // Ajoute un espace de 10.dp entre les deux textes
+
                 Text(
                     text = alertMessage,
                     fontSize = 18.sp,
@@ -215,13 +214,19 @@ fun MqttAlertScreen() {
             title = { Text("Alerte Urgente !") },
             text = { Text("Voulez-vous appeler le numéro d'urgence 118 ?") },
             confirmButton = {
-                Button(onClick = { /* Logique d'appel 118 */ showAlertDialog = false }) {
-                    Text("📞 Appeler 118")
+                Button(
+                    onClick = { /* Logique d'appel 118 */ showAlertDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = splashColor)
+                ) {
+                    Text("📞 Appeler 118", color = Color.White)
                 }
             },
             dismissButton = {
-                Button(onClick = { showAlertDialog = false }) {
-                    Text("Annuler")
+                Button(
+                    onClick = { showAlertDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = splashColor)
+                ) {
+                    Text("Annuler", color = Color.White)
                 }
             }
         )
