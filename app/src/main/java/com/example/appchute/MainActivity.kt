@@ -108,7 +108,7 @@ fun MqttAlertScreen() {
                 painter = painterResource(id = R.drawable.p4), // Remplace avec une vraie image
                 contentDescription = "Profil",
                 modifier = Modifier
-                    .size(190.dp)
+                    .size(120.dp)
                     .clip(CircleShape)
             )
         }
